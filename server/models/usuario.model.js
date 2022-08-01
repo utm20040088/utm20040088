@@ -1,24 +1,36 @@
 const mongoose = require ("mongoose");
 const bcrypt = require("bcrypt");
 const UsuarioSchema = mongoose.Schema({
- nombre:  {
+ strnombre:  {
     type: String,
     require:[true, "Es necesario ingresar el nombre"]
 },
- primerapellidoapellidos: {
+ strprimerapellido: {
      type: String,
-     require:[true, "Es necesario ingresar los apellidos"]
+     require:[true, "Es necesario ingresar el apellido"]
  },
- segundoapellido:  {
+ strsegundoapellido:  {
     type: String,
-    require:[true, "Es necesario ingresar el correoElectronico"]
-},
+     require:[true, "Es necesario ingresar el apellido"]
+    },
 idPuesto: {
     type: objectid(),
-    require:[true, "Es necesario ingresar la contraseña"]
+    require:[true, "Es necesario ingresar el puesto"]
 },
-edad: Number,
-curp: String
+nmbEdad:{
+    type: String,
+     require:[true, "Es necesario ingresar la edad"]
+    },
+credenciales: {
+    strCorreo:{
+        type: String,
+    require:[true, "Es necesario ingresar el correoElectronico"]
+    },
+    strPassword: {
+        type: String,
+    require:[true, "Es necesario ingresar la contraseña"]
+    }
+}
 })
 UsuarioSchema.pre("save",function(next){
     bcrypt.genSalt(10).then(Salts => {

@@ -13,7 +13,7 @@ class Email{
          service: "gmail",
          auth: {
             user: "utm20040088@utma.edu.mx",
-            pass: "igmendozam20020314"
+            pass: ""
          }
         });
     }
