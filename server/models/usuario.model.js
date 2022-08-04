@@ -13,15 +13,12 @@ const UsuarioSchema = mongoose.Schema({
     type: String,
      require:[true, "Es necesario ingresar el apellido"]
     },
-idPuesto: {
-    type: objectid(),
-    require:[true, "Es necesario ingresar el puesto"]
-},
+
 nmbEdad:{
     type: String,
      require:[true, "Es necesario ingresar la edad"]
     },
-credenciales: {
+
     strCorreo:{
         type: String,
     require:[true, "Es necesario ingresar el correoElectronico"]
@@ -30,7 +27,7 @@ credenciales: {
         type: String,
     require:[true, "Es necesario ingresar la contraseña"]
     }
-}
+
 })
 UsuarioSchema.pre("save",function(next){
     bcrypt.genSalt(10).then(Salts => {

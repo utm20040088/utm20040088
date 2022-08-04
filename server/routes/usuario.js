@@ -1,6 +1,7 @@
 const UsarioModel = require('../models/Usuario.model');
 const { request } = require("express");
 const express = require("express");
+const usuarioModel = require('../models/Usuario.model');
 const router = express.Router();
 
 router.get("/", (req,resp) => {
@@ -25,13 +26,9 @@ router.get("/", (req,resp) => {
     });
 });    
 router.get("/:id/:nombre/:apellido/:edad", (request, response) => {
-//const id=request.params.id;
-//const nombre=request.params.nombre;
-//const apellido=request.params.apellido;
-//const edad=request.params.edad;
+
 const {id, nombre, apellido, edad} = request.params;
-//"22"==22 -> true(validacion no estricta-verifica solamente el valor)   
-//"22"=== 22 ->false (validacion estricta-verifica el valor y tipo de dato)
+
 if(Number(edad).toString()==="NaN"){
 
     return response.status(400).json({
@@ -49,41 +46,55 @@ return response.status(200).json({
        });
    
    });
-   router.get("/usuarioBusqueda", (req, resp) => {
+   router.get("/:id", (req, resp) => {
+   const idusuario = req.params.id;
+   usuarioModel.findOne({_id: idusuario})
+   .then((usuario)=>{
+    return resp.status(200).json({
+        "message": "Se consultaron los usuarios correctamente",
+        status:200,
+        cont:{
+            usuario
+        }
+    });
+   })
+   .catch((err)=>{
+    return resp.status(500).json({
+        "message": "Se consultaron los usuarios correctamente",
+        status:500,
+        cont:{
+            err:error
+        }
+     });
+ });
+});
 
-   const id = req.query.id;
-   const nombre =req.query.nombre;
-    resp.status(200).json({
-           "message": "Se consulto la API usuarioBusqueda exitosamente",
-           id,
-           nombre
-       });
-   
-   });
+router.post("/enviarEmail", (req, res) => {
+    const strNombre =req.body.strNombre;
+     const strCorreo = req.body.strCorreo;
+     const strPrimerApellido = req.body.strPrimerApellido;
+     const strSegundoApellido = req.body.strSegundoApellido;
+     const nmbEdad = req.body.nmbEdad;
 
-router.post("/", (req, resp) => {
-    const usuario = new UsarioModel(req.body);
-   usuario.save()
-   .then((usuarioRegistrado) =>{
-       return resp.status(200).json({
-           "message": "Usuario registrado exitosamente",
-           status:200,
-           cont:{
-           usuario:usuarioRegistrado
-           }
-       });
-   
-    })
-    .catch((err)=>{
-        return resp.status(500).json({
-            msg:"Error al registrar el usuario",
-            status: 500,
-            cont:{
-                error: err
+    Email.sendEmail(strCorreo, {strNombre, strCorreo, strPrimerApellido, strSegundoApellido, nmbEdad})
+    .then((response) =>{
+        return res.status(200).json({
+            msg: "Enviado exitosamente",
+            status: 200,
+            cont: {
+                response
             }
-        })
-           })
-
+        });
+    })
+    .catch((error) => {
+        return res.status(200).json({
+            msg: "Error ",
+            status: 200,
+            cont: {
+                error: error.message
+            }
+        });
+    });
 });
 
 router.put("/", (req, resp) => {
@@ -110,30 +121,24 @@ router.put("/", (req, resp) => {
 
 });
 
-router.delete("/", (req, resp) => {
-    const usuario = new UsarioModel(req.body);
-   usuario.save().then((usuarioRegistrado) =>{
-       return resp.status(200).json({
-           "message": "Usuario eliminado exitosamente",
-           status:200,
-           cont:{
-           usuario:usuarioRegistrado
-           }
-       });
-   
-    })
-    .catch((err)=>{
-        return resp.status(500).json({
-            msg:"Error al eliminar el usuario",
-            status: 500,
-            cont:{
-                error: err
-            }
-        })
-           })
-
+router.delete("/", (request, response) => {
+    
+    UsuarioModel.findByIdAndRemove({_id:""},{new: true},
+    function(error, info){
+        if(error){
+        res.json ({
+        resultado: false,
+        msg: "No se pudo eliminar",
+        err    
+        });
+} else {
+    res.json({
+        resultado: true,
+        msg: "Se ha eliminado correctamente"
+    });
+}
 });
-
+});
 router.post("/login",(request,response) => {
 
     const email = request.body.correoElectronico;
