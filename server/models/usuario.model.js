@@ -14,16 +14,16 @@ const UsuarioSchema = mongoose.Schema({
      require:[true, "Es necesario ingresar el apellido"]
     },
 
-nmbEdad:{
+nmbedad:{
     type: String,
      require:[true, "Es necesario ingresar la edad"]
     },
 
-    strCorreo:{
+    strcorreo:{
         type: String,
     require:[true, "Es necesario ingresar el correoElectronico"]
     },
-    strPassword: {
+    strpassword: {
         type: String,
     require:[true, "Es necesario ingresar la contraseña"]
     }

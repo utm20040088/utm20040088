@@ -1,11 +1,12 @@
-const UsarioModel = require('../models/Usuario.model');
+const usarioModel = require('../models/Usuario.model');
 const { request } = require("express");
 const express = require("express");
 const usuarioModel = require('../models/Usuario.model');
 const router = express.Router();
+const Email = require('../libreries/Email');
 
 router.get("/", (req,resp) => {
-    UsarioModel.find()
+    usarioModel.find()
     .then((usuario) => {
     return resp.status(200).json({
         msg: "USe consultaron los usuarios correctamente",
@@ -58,7 +59,7 @@ return response.status(200).json({
         }
     });
    })
-   .catch((err)=>{
+   .catch((error)=>{
     return resp.status(500).json({
         "message": "Se consultaron los usuarios correctamente",
         status:500,
@@ -69,16 +70,27 @@ return response.status(200).json({
  });
 });
 
-router.post("/enviarEmail", (req, res) => {
-    const strNombre =req.body.strNombre;
-     const strCorreo = req.body.strCorreo;
-     const strPrimerApellido = req.body.strPrimerApellido;
-     const strSegundoApellido = req.body.strSegundoApellido;
-     const nmbEdad = req.body.nmbEdad;
+router.post("/enviarEmail", (req, resp) => {
+    const strcorreo = req.body.strcorreo;
+    const strnombre =req.body.strnombre;
+     const strprimerapellido = req.body.strprimerapellido;
+     const strsegundoapellido = req.body.strsegundoapellido;
+     const nmbedad = req.body.nmbedad;
+     
+     const RgxEmail = /^[^@]+@[^@]+\.[a-zA-Z]{2,}$/;
+     const valido = RgxEmail.test(strcorreo);
+     if (valido == false){
+        return resp.status(500).json({
+            msg: "El correo es invalido",
+            status: 500,
+            cont: {
+            }
+        })
+     }
 
-    Email.sendEmail(strCorreo, {strNombre, strCorreo, strPrimerApellido, strSegundoApellido, nmbEdad})
+    Email.sendEmail(strcorreo, {strcorreo, strnombre, strprimerapellido, strsegundoapellido, nmbedad })
     .then((response) =>{
-        return res.status(200).json({
+        return resp.status(200).json({
             msg: "Enviado exitosamente",
             status: 200,
             cont: {
@@ -87,7 +99,7 @@ router.post("/enviarEmail", (req, res) => {
         });
     })
     .catch((error) => {
-        return res.status(200).json({
+        return resp.status(200).json({
             msg: "Error ",
             status: 200,
             cont: {
@@ -97,69 +109,65 @@ router.post("/enviarEmail", (req, res) => {
     });
 });
 
-router.put("/", (req, resp) => {
-    const usuario = new UsarioModel(req.body);
-   usuario.save().then((usuarioRegistrado) =>{
-       return resp.status(200).json({
-           "message": "registrado exitosamente",
-           status:200,
-           cont:{
-           usuario:usuarioRegistrado
-           }
-       });
-   
+router.put("/:id", async (req, resp) => {
+
+    const idusuario = req.params.id;
+    usuarioModel.findByIdAndUpdate({_id: idusuario}, {
+        $set: {
+            strnombre: request.body. strnombre,
+            strprimerapellido: request.body.strprimerapellido,
+            strsegundoapellido: request.body.strsegundoapellido,
+            nmbedad: request.body.nmbedad,
+            strcorreo: request.body.strcorreo,
+            strcorreo: request.body.strpassword
+       
+
+        }
+    }, {new: true})
+    .then((usuario) => {
+        return resp.status(200).json({
+            "message": "Las empresas se actualizaron exitosamente",
+            status: 200,
+            cont: {
+                usuario
+            }
     })
-    .catch((err)=>{
+})
+    .catch((err) => {
         return resp.status(500).json({
-            msg:"Error al registrar el usuario",
+            "message": "Error al actualizar las empresas",
             status: 500,
-            cont:{
+            cont: {
                 error: err
             }
-        })
-           })
-
-});
-
-router.delete("/", (request, response) => {
-    
-    UsuarioModel.findByIdAndRemove({_id:""},{new: true},
-    function(error, info){
-        if(error){
-        res.json ({
-        resultado: false,
-        msg: "No se pudo eliminar",
-        err    
         });
-} else {
-    res.json({
-        resultado: true,
-        msg: "Se ha eliminado correctamente"
     });
-}
 });
-});
-router.post("/login",(request,response) => {
 
-    const email = request.body.correoElectronico;
-    const password = request.body.password;
+router.delete("/:id", (req,resp) => {
 
-    UsuarioModel.findOne({"email":email,"password":password})
-    .then ((usuarioLogeado) =>{ 
-        if(usuarioLogeado == null){
-            return response.status(500).json({
-                message : "Autenticacion Fallida",
+    const idusuario = req.params.id;
 
-            });
-
-        }else{
-            
-                return response.status(200).json({
-                    message : "Autenticacion Exitosa",
-                  
-                 });
-        }
+    usuarioModel.findByIdAndRemove(idusuario)
+    .then((usuarioEliminado) =>{
+        return resp.status(200).json({
+            "message": "Empresa eliminada exitosamente",
+            status: 200,
+            cont: {
+                categoria: usuarioEliminado
+            }
+        });
     })
+    .catch((err) =>{
+        return resp.status(500).json({
+            "message": "Error al eliminar el usuario",
+            status: 500,
+            cont: {
+                error: err
+            }
+        });
     });
+
+});
 
 module.exports = router;

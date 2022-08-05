@@ -1,22 +1,23 @@
-const UsarioModel = require('../models/Usuario.model');
+const puestomodel = require('../models/puesto.model');
 const { request } = require("express");
 const express = require("express");
 const router = express.Router();
+const Email = require('../libreries/Email');
 
 router.get("/", (req,resp) => {
-    UsarioModel.find()
-    .then((usuario) => {
+    puestomodel.find()
+    .then((puesto) => {
     return resp.status(200).json({
-        msg: "USe consultaron los usuarios correctamente",
+        msg: "USe consultaron los puestos correctamente",
         status : 200,
         cont: {
-            usuario
+            puesto
         }
     }); 
 })
     .catch((err) => {
         return resp.status(500).json({
-            msg: "Erro al consultar los usuarios",
+            msg: "Erro al consultar los puestos",
             status : 500,
             cont: {
                 error: err
@@ -24,14 +25,10 @@ router.get("/", (req,resp) => {
         });
     });
 });    
-router.get("/:id/:nombre/:apellido/:edad", (request, response) => {
-//const id=request.params.id;
-//const nombre=request.params.nombre;
-//const apellido=request.params.apellido;
-//const edad=request.params.edad;
-const {id, nombre, apellido, edad} = request.params;
-//"22"==22 -> true(validacion no estricta-verifica solamente el valor)   
-//"22"=== 22 ->false (validacion estricta-verifica el valor y tipo de dato)
+router.get("/:strnombre/:idempresa", (request, response) => {
+
+const {strnombre, idempresa} = request.params;
+
 if(Number(edad).toString()==="NaN"){
 
     return response.status(400).json({
@@ -40,121 +37,119 @@ if(Number(edad).toString()==="NaN"){
    }
 
 return response.status(200).json({
-           "message": "Estás dentro de la API GET Usuario",
-           id,
-           nombre,
-           apellido,
-           edad: Number(edad)
+           "message": "Estás dentro de la API GET puesto",
+           strnombre,
+           idempresa
            
        });
    
    });
-   router.get("/usuarioBusqueda", (req, resp) => {
-
-   const id = req.query.id;
-   const nombre =req.query.nombre;
-    resp.status(200).json({
-           "message": "Se consulto la API usuarioBusqueda exitosamente",
-           id,
-           nombre
-       });
-   
-   });
-
-router.post("/", (req, resp) => {
-    const usuario = new UsarioModel(req.body);
-   usuario.save()
-   .then((usuarioRegistrado) =>{
-       return resp.status(200).json({
-           "message": "Usuario registrado exitosamente",
-           status:200,
-           cont:{
-           usuario:usuarioRegistrado
-           }
-       });
-   
-    })
-    .catch((err)=>{
-        return resp.status(500).json({
-            msg:"Error al registrar el usuario",
-            status: 500,
-            cont:{
-                error: err
-            }
-        })
-           })
-
-});
-
-router.put("/", (req, resp) => {
-    const usuario = new UsarioModel(req.body);
-   usuario.save().then((usuarioRegistrado) =>{
-       return resp.status(200).json({
-           "message": "registrado exitosamente",
-           status:200,
-           cont:{
-           usuario:usuarioRegistrado
-           }
-       });
-   
-    })
-    .catch((err)=>{
-        return resp.status(500).json({
-            msg:"Error al registrar el usuario",
-            status: 500,
-            cont:{
-                error: err
-            }
-        })
-           })
-
-});
-
-router.delete("/", (req, resp) => {
-    const usuario = new UsarioModel(req.body);
-   usuario.save().then((usuarioRegistrado) =>{
-       return resp.status(200).json({
-           "message": "Usuario eliminado exitosamente",
-           status:200,
-           cont:{
-           usuario:usuarioRegistrado
-           }
-       });
-   
-    })
-    .catch((err)=>{
-        return resp.status(500).json({
-            msg:"Error al eliminar el usuario",
-            status: 500,
-            cont:{
-                error: err
-            }
-        })
-           })
-
-});
-
-router.post("/login",(request,response) => {
-
-    const email = request.body.correoElectronico;
-    const password = request.body.password;
-
-    UsuarioModel.findOne({"email":email,"password":password})
-    .then ((usuarioLogeado) =>{ 
-        if(usuarioLogeado == null){
-            return response.status(500).json({
-                message : "Autenticacion Fallida",
-
-            });
-
-        }else{
-            
-                return response.status(200).json({
-                    message : "Autenticacion Exitosa",
-                  
-                 });
+   router.get("/:id", (req, resp) => {
+   const idpuesto = req.params.id;
+   usuarioModel.findOne({_id: idpuesto})
+   .then((puesto)=>{
+    return resp.status(200).json({
+        "message": "Se consultaron los puestos correctamente",
+        status:200,
+        cont:{
+            puesto
         }
-    })
     });
+   })
+   .catch((err)=>{
+    return resp.status(500).json({
+        "message": "Se consultaron los puestos correctamente",
+        status:500,
+        cont:{
+            err:error
+        }
+     });
+ });
+});
+
+router.post("/enviarEmail", (req, resp) => {
+    const strcorreo = req.body.strcorreo;
+    const strnombre =req.body.strnombre;
+     const strprimerapellido = req.body.strprimerapellido;
+     const strsegundoapellido = req.body.strsegundoapellido;
+     const nmbedad = req.body.nmbedad;
+
+    Email.sendEmail(strcorreo, {strcorreo, strnombre, strprimerapellido, strsegundoapellido, nmbedad })
+    .then((resp) =>{
+        return resp.status(200).json({
+            msg: "Enviado exitosamente",
+            status: 200,
+            cont: {
+                resp
+            }
+        });
+    })
+    .catch((error) => {
+        return resp.status(200).json({
+            msg: "Error ",
+            status: 200,
+            cont: {
+                error: error.message
+            }
+        });
+    });
+});
+
+router.put("/:id", async (req, resp) => {
+
+    const idpuesto = req.params.id;
+    usuarioModel.findByIdAndUpdate({_id: idpuesto}, {
+        $set: {
+            strnombre: request.body. strnombre,
+            idempresa: request.body.idempresa
+       
+
+        }
+    }, {new: true})
+    .then((empresa) => {
+        return resp.status(200).json({
+            "message": "Los puestos se actualizaron exitosamente",
+            status: 200,
+            cont: {
+                empresa
+            }
+    })
+})
+    .catch((err) => {
+        return resp.status(500).json({
+            "message": "Error al actualizar los puestos",
+            status: 500,
+            cont: {
+                error: err
+            }
+        });
+    });
+});
+
+router.delete("/:id", (req,resp) => {
+
+    const idpuesto = req.params.id;
+
+    usuarioModel.findByIdAndRemove(idpuesto)
+    .then((puestoEliminado) =>{
+        return resp.status(200).json({
+            "message": "puesto eliminado exitosamente",
+            status: 200,
+            cont: {
+                categoria: puestoEliminado
+            }
+        });
+    })
+    .catch((err) =>{
+        return resp.status(500).json({
+            "message": "Error al eliminar el puesto",
+            status: 500,
+            cont: {
+                error: err
+            }
+        });
+    });
+
+});
 
 module.exports = router;

@@ -13,7 +13,7 @@ class Email{
          service: "gmail",
          auth: {
             user: "utm20040088@utma.edu.mx",
-            pass: ""
+            pass: "ygpxcpuznziqdvtv"
          }
         });
     }
@@ -21,14 +21,14 @@ class Email{
     sendEmail(email, data){
 
         return new Promise((resolve, reject) =>{
-    const template = fs.readFileSync(path.resolve(__dirname, "../assets/templates/template.html"), "utf-8");
+    const template = fs.readFileSync(path.resolve(__dirname, "../assets/template.html"), "utf-8");
     const compileTemplate = hogan.compile(template);
     
     this.transport.sendMail({
          from: '"UTMA" <utm20040088@utma.edu.mx> ',
          to: email,
          subject: "Correo electronico",
-         html: compileTemplate.render({strNombre: data.strNombre, strPrimerApellido: data.strPrimerApellido}),
+         html: compileTemplate.render({strcorreo: data.strcorreo, strnombre: data.strnombre, strprimerapellido: data.strsegundoapellido, nmbedad: data.nmbedad}),
     }).then((response) =>{
         resolve(response);
     })
