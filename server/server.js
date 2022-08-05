@@ -6,9 +6,8 @@ require("./config/config");
 const app = express();
 const routes = require('./routes/index');
 const bodyParser = require('body-parser');
-const { response } = require("./routes/index");
 
-app.get("/",(req,res)=>{
+app.get("/",(req,response)=>{
     return response.status(200).json({
         msg: "Estas dentro de la api get de isaac",
         status: 200
