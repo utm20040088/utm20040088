@@ -6,10 +6,12 @@ require("./config/config");
 const app = express();
 const routes = require('./routes/index');
 const bodyParser = require('body-parser');
+const { response } = require("./routes/index");
 
 app.get("/",(req,res)=>{
-    res.status(200).json({
-        msg:"UTM20040088 Isaac gonzalo mendoza mendez"
+    return response.status(200).json({
+        msg: "Estas dentro de la api get de isaac",
+        status: 200
     })
 });
 
