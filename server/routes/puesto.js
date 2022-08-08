@@ -94,6 +94,32 @@ router.post("/enviarEmail", (req, resp) => {
     });
 });
 
+router.post("/", (req, resp) => {
+    const puesto = new puestomodel(req.body);
+   puesto.save()
+   .then((puestoRegistrado) =>{
+       return resp.status(200).json({
+           "message": "puesto registrado exitosamente",
+           status:200,
+           cont:{
+           puesto: puestoRegistrado
+           }
+       });
+   
+    })
+    .catch((err)=>{
+        return resp.status(500).json({
+            msg:"Error al registrar el puesto",
+            status: 500,
+            cont:{
+                error: err
+            }
+        })
+           })
+
+});
+
+
 router.put("/:id", async (req, resp) => {
 
     const idpuesto = req.params.id;

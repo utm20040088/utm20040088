@@ -95,6 +95,32 @@ router.post("/enviarEmail", (req, resp) => {
     });
 });
 
+router.post("/", (req, resp) => {
+    const empresa = new empresaModel(req.body);
+   empresa.save()
+   .then((empresaRegistrada) =>{
+       return resp.status(200).json({
+           "message": "Empresa registrada exitosamente",
+           status:200,
+           cont:{
+           empresa: empresaRegistrada
+           }
+       });
+   
+    })
+    .catch((err)=>{
+        return resp.status(500).json({
+            msg:"Error al registrar la empresa",
+            status: 500,
+            cont:{
+                error: err
+            }
+        })
+           })
+
+});
+
+
 router.put("/:id", async (req, resp) => {
 
     const idempresa = req.params.id;

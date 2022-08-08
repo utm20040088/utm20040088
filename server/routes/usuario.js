@@ -107,6 +107,32 @@ router.post("/enviarEmail", (req, resp) => {
     });
 });
 
+router.post("/", (req, resp) => {
+    const usuario = new usarioModel(req.body);
+   usuario.save()
+   .then((usuarioRegistrado) =>{
+       return resp.status(200).json({
+           "message": "Usuario registrado exitosamente",
+           status:200,
+           cont:{
+           usuario:usuarioRegistrado
+           }
+       });
+   
+    })
+    .catch((err)=>{
+        return resp.status(500).json({
+            msg:"Error al registrar el usuario",
+            status: 500,
+            cont:{
+                error: err.message
+            }
+        })
+           })
+
+});
+
+
 router.put("/:id", async (req, resp) => {
 
     const idusuario = req.params.id;

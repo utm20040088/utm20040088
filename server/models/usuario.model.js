@@ -1,5 +1,6 @@
 const mongoose = require ("mongoose");
 const bcrypt = require("bcrypt");
+const parseid= (id)=> {return mongoose.Types.ObjectId(id)}
 const UsuarioSchema = mongoose.Schema({
  strnombre:  {
     type: String,
@@ -14,28 +15,24 @@ const UsuarioSchema = mongoose.Schema({
      require:[true, "Es necesario ingresar el apellido"]
     },
 
-nmbedad:{
-    type: String,
-     require:[true, "Es necesario ingresar la edad"]
-    },
+nmbedad:Number,
 
-    strcorreo:{
-        type: String,
-    require:[true, "Es necesario ingresar el correoElectronico"]
+    idPuesto:{
+        type: mongoose.Types.ObjectId,
+        required:[true,"descripcion"]
     },
-    strpassword: {
-        type: String,
-    require:[true, "Es necesario ingresar la contraseña"]
+    credenciales : {
+   
+         strcorreo:{
+            type: String,
+            require: true, unique: false
+        },
+            strpassword: {
+            type: String,
+            require: true, unique: false
+        }
     }
-
 })
-UsuarioSchema.pre("save",function(next){
-    bcrypt.genSalt(10).then(Salts => {
-        bcrypt.hash(this.password,Salts).then(hash =>{
-            this.password= hash;
-            next();
-        }).catch(error => next(error));
-    }).catch(error => next(error));
-});
+
 
 module.exports=mongoose.model("usuario", UsuarioSchema);
